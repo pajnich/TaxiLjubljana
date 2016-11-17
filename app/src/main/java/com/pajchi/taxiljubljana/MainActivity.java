@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -27,6 +28,8 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -64,6 +67,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void showExistingTaxiData() {
 
+        final TextView tvName = (TextView) findViewById(R.id.tvName);
+        final TextView tvPhone = (TextView) findViewById(R.id.tvPhone);
+        final TextView tvStartFee = (TextView) findViewById(R.id.tvStartFee);
+        final TextView tvWaitingHour = (TextView) findViewById(R.id.tvWaitingHour);
+        final TextView tvRandomKm = (TextView) findViewById(R.id.tvRandomKm);
+        final LinearLayout llDetails = (LinearLayout) findViewById(R.id.llDetails);
+
         DatabaseHelper databaseHelper = new DatabaseHelper(getApplicationContext());
         SQLiteDatabase db = databaseHelper.getWritableDatabase();
 
@@ -89,6 +99,49 @@ public class MainActivity extends AppCompatActivity {
                     listItem.setBackgroundColor(Color.TRANSPARENT);
                 }
                 view.setBackgroundColor(Color.GREEN);
+
+                // show details of selected taxi
+                for (int i = 0; i < lvTaxis.getChildCount(); i++) {
+                    int color = Color.TRANSPARENT;
+                    Drawable background = lvTaxis.getChildAt(i).getBackground();
+                    if (background instanceof ColorDrawable)
+                        color = ((ColorDrawable) background).getColor();
+                    if (color == Color.GREEN) {
+
+                        cursorAllTaxis.moveToFirst();
+                        while(cursorAllTaxis.getPosition() != i){
+                            cursorAllTaxis.moveToNext();
+                            if(cursorAllTaxis.getPosition() > -1){
+                                System.out.println("ZDEJ SMO NA: " + cursorAllTaxis.getString(1));
+                            }
+                        }
+
+                        tvName.setText(cursorAllTaxis.getString(
+                                cursorAllTaxis.getColumnIndex(
+                                        DatabaseContract.Taxis.COLUMN_NAME_NAME)));
+                        tvPhone.setText(cursorAllTaxis.getString(
+                                cursorAllTaxis.getColumnIndex(
+                                        DatabaseContract.Taxis.COLUMN_NAME_PHONE)));
+                        tvStartFee.setText(cursorAllTaxis.getString(
+                                cursorAllTaxis.getColumnIndex(
+                                        DatabaseContract.Taxis.COLUMN_NAME_START_FEE)));
+                        tvWaitingHour.setText(cursorAllTaxis.getString(
+                                cursorAllTaxis.getColumnIndex(
+                                        DatabaseContract.Taxis.COLUMN_NAME_WAITING_HOUR)));
+                        tvRandomKm.setText(cursorAllTaxis.getString(
+                                cursorAllTaxis.getColumnIndex(
+                                        DatabaseContract.Taxis.COLUMN_NAME_RANDOM_KM)));
+
+                        llDetails.setVisibility(View.VISIBLE);
+
+                        System.out.println("SHOWING DETAILS OF: "
+                                + cursorAllTaxis.getString(
+                                cursorAllTaxis.getColumnIndex(
+                                        DatabaseContract.Taxis.COLUMN_NAME_NAME)));
+
+                    }
+                }
+
             }
         });
 
@@ -225,6 +278,18 @@ public class MainActivity extends AppCompatActivity {
                 if (isCancelled()) break;
             }
 
+            // sort taxis by price
+            Collections.sort(taxis, new Comparator<Taxi>() {
+                @Override public int compare(Taxi t1, Taxi t2) {
+                    return Double.compare(
+                            priceStringToDouble(t1.getRandom10Km()),
+                            priceStringToDouble(t2.getRandom10Km()));
+                    //
+                    // Ascending
+                }
+
+            });
+
             return taxis;
         }
 
@@ -310,7 +375,17 @@ public class MainActivity extends AppCompatActivity {
          * @param taxis    {@link ArrayList} of {@link Taxi} objects received from the AsyncTask.
          */
         protected void onPostExecute(ArrayList taxis) {
+
+            final TextView tvName = (TextView) findViewById(R.id.tvName);
+            final TextView tvPhone = (TextView) findViewById(R.id.tvPhone);
+            final TextView tvStartFee = (TextView) findViewById(R.id.tvStartFee);
+            final TextView tvWaitingHour = (TextView) findViewById(R.id.tvWaitingHour);
+            final TextView tvRandomKm = (TextView) findViewById(R.id.tvRandomKm);
+            final LinearLayout llDetails = (LinearLayout) findViewById(R.id.llDetails);
+
             if (taxis != null) {
+
+                llDetails.setVisibility(View.INVISIBLE);
 
                 DatabaseHelper databaseHelper = new DatabaseHelper(getApplicationContext());
                 SQLiteDatabase db = databaseHelper.getWritableDatabase();
@@ -338,6 +413,27 @@ public class MainActivity extends AppCompatActivity {
                             listItem.setBackgroundColor(Color.TRANSPARENT);
                         }
                         view.setBackgroundColor(Color.GREEN);
+
+                        for (int i = 0; i < listView.getChildCount(); i++) {
+                            int color = Color.TRANSPARENT;
+                            Drawable background = listView.getChildAt(i).getBackground();
+                            if (background instanceof ColorDrawable)
+                                color = ((ColorDrawable) background).getColor();
+                            if (color == Color.GREEN) {
+
+                                tvName.setText(adapter.getTaxis().get(i).getName());
+                                tvPhone.setText(adapter.getTaxis().get(i).getPhone());
+                                tvStartFee.setText(adapter.getTaxis().get(i).getStartFee());
+                                tvWaitingHour.setText(adapter.getTaxis().get(i).getWaitingHour());
+                                tvRandomKm.setText(adapter.getTaxis().get(i).getRandomKm());
+                                
+                                llDetails.setVisibility(View.VISIBLE);
+
+                                System.out.println("SHOWING DETAILS FOR: " + adapter.getTaxis()
+                                        .get(i).getName());
+                            }
+                        }
+
                     }
                 });
 
@@ -384,6 +480,12 @@ public class MainActivity extends AppCompatActivity {
 
             }
         }
+    }
+
+    private double priceStringToDouble(String random10Km) {
+        random10Km = random10Km.replace(" €","");
+        random10Km = random10Km.replace(",",".");
+        return Double.parseDouble(random10Km);
     }
 
     private void hideLoadingAnimation() {
