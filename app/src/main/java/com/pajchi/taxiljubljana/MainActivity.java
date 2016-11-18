@@ -22,6 +22,16 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -34,6 +44,7 @@ import java.util.Comparator;
 public class MainActivity extends AppCompatActivity {
 
     private static final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 0;
+    public static String distance = "0";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,8 +54,12 @@ public class MainActivity extends AppCompatActivity {
         // set view params
         setViewParams();
 
+        // calculate distance from current position to default destination
+        calculateDistance();
+
         // show existing taxi data
         showExistingTaxiData();
+
 
         // update taxi data
         try {
@@ -55,6 +70,56 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+    }
+
+    private void calculateDistance() {
+
+        final String url = createSearchUrl();
+
+        System.out.println("START OF REQUEST");
+
+        // create a request for a JsonArray of results
+        // add the request to the requestQueue
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                Request.Method.GET,
+                url,
+                null,
+                createResponseListener(),
+                createResponseErrorListener()
+        );
+
+        RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
+        requestQueue.add(jsonObjectRequest);
+    }
+
+    private Response.ErrorListener createResponseErrorListener() {
+        return new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("HTTP REQUEST ERROR", error.toString());
+            }
+        };
+    }
+
+    private Response.Listener<JSONObject> createResponseListener() {
+        return new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    distance = response.getJSONArray("routes").getJSONObject(0).
+                            getJSONArray("legs").getJSONObject(0).getJSONObject("distance").
+                            get("value").toString();
+                    System.out.println("RESPONSE: distance=" + distance + "m.");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        };
+    }
+
+    private String createSearchUrl() {
+        return "https://maps.googleapis.com/maps/api/directions/json?origin=Disneyland&destination=Universal+Studios+Hollywood4&key=AIzaSyC9h4m-SwNQwKy4bGkBj5RPO_kNLf8eblk";
     }
 
     private void setViewParams() {
@@ -426,7 +491,7 @@ public class MainActivity extends AppCompatActivity {
                                 tvStartFee.setText(adapter.getTaxis().get(i).getStartFee());
                                 tvWaitingHour.setText(adapter.getTaxis().get(i).getWaitingHour());
                                 tvRandomKm.setText(adapter.getTaxis().get(i).getRandomKm());
-                                
+
                                 llDetails.setVisibility(View.VISIBLE);
 
                                 System.out.println("SHOWING DETAILS FOR: " + adapter.getTaxis()
@@ -482,7 +547,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private double priceStringToDouble(String random10Km) {
+    public static double priceStringToDouble(String random10Km) {
         random10Km = random10Km.replace(" €","");
         random10Km = random10Km.replace(",",".");
         return Double.parseDouble(random10Km);

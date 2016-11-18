@@ -59,17 +59,30 @@ public class TaxisCursorAdapter extends CursorAdapter {
 
         // Find fields to populate in inflated template
         TextView tvName = (TextView) view.findViewById(R.id.tvName);
-        TextView tvRandom10Km = (TextView) view.findViewById(R.id.tvRandom10Km);
+        TextView tvEstimatedPrice = (TextView) view.findViewById(R.id.tvEstimatedPrice);
 
         // Extract properties from cursor
         String name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract
                 .Taxis.COLUMN_NAME_NAME));
-        String random10Km = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract
-                .Taxis.COLUMN_NAME_RANDOM_10_KM));
+        String randomKm = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract
+                .Taxis.COLUMN_NAME_RANDOM_KM));
+        String startFee = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseContract.Taxis
+                .COLUMN_NAME_START_FEE));
+
+        String estimatedPrice = String.valueOf(
+                Math.round(
+                        MainActivity.priceStringToDouble(randomKm)
+                                * (MainActivity.priceStringToDouble(MainActivity.distance)
+
+
+                        / 1000)
+                        + MainActivity.priceStringToDouble(startFee)
+                )
+        ) + " €";
 
         // Populate fields with extracted properties
         tvName.setText(name);
-        tvRandom10Km.setText(random10Km);
+        tvEstimatedPrice.setText(estimatedPrice);
 
     }
 }
