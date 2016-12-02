@@ -8,9 +8,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -28,6 +31,11 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,10 +49,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     private static final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 0;
     public static String distance = "0";
+    private GoogleApiClient mGoogleApiClient;
+    private LocationRequest mLocationRequest;
+    private Location mCurrentLocation;
+    private static final int MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION = 1;
+    private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,12 +68,11 @@ public class MainActivity extends AppCompatActivity {
         // set view params
         setViewParams();
 
-        // calculate distance from current position to default destination
-        calculateDistance();
+        // start fetching GPS location periodically
+        startFetchingLocation();
 
         // show existing taxi data
         showExistingTaxiData();
-
 
         // update taxi data
         try {
@@ -69,7 +82,28 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
+        if(mCurrentLocation == null){
+            System.out.println("mCurrentLocation is null");
+        }
 
+    }
+
+    private void startFetchingLocation() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+        mLocationRequest = new LocationRequest();
+        // High accuracy
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        // Update interval in milliseconds
+        mLocationRequest.setInterval(10000);
+    /* Explicitly set the fastest interval for location updates, in milliseconds.
+       This controls the fastest rate at which your application will receive location
+       updates, which might be faster than setInterval(long) in some situations (for
+       example, if other applications are triggering location updates).*/
+        mLocationRequest.setFastestInterval(5000);
     }
 
     private void calculateDistance() {
@@ -106,8 +140,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(JSONObject response) {
                 try {
-                    distance = response.getJSONArray("routes").getJSONObject(0).
-                            getJSONArray("legs").getJSONObject(0).getJSONObject("distance").
+                    distance = response.getJSONArray("rows").getJSONObject(0).
+                            getJSONArray("elements").getJSONObject(0).getJSONObject("distance").
                             get("value").toString();
                     System.out.println("RESPONSE: distance=" + distance + "m.");
                 } catch (JSONException e) {
@@ -119,8 +153,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private String createSearchUrl() {
-        return "https://maps.googleapis.com/maps/api/directions/json?origin=Disneyland&destination=Universal+Studios+Hollywood4&key=AIzaSyC9h4m-SwNQwKy4bGkBj5RPO_kNLf8eblk";
+
+        String latitude = Double.toString(mCurrentLocation.getLatitude());
+        String longitude = Double.toString(mCurrentLocation.getLongitude());
+
+        return "https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins="
+                +  latitude + "," + longitude
+                + "&destinations=Črnuče,Slovenia&key=AIzaSyDuQNq2zmwmo3Y5a1-R9w5xQUH1I-iv_qY";
     }
+
 
     private void setViewParams() {
 
@@ -174,9 +215,9 @@ public class MainActivity extends AppCompatActivity {
                     if (color == Color.GREEN) {
 
                         cursorAllTaxis.moveToFirst();
-                        while(cursorAllTaxis.getPosition() != i){
+                        while (cursorAllTaxis.getPosition() != i) {
                             cursorAllTaxis.moveToNext();
-                            if(cursorAllTaxis.getPosition() > -1){
+                            if (cursorAllTaxis.getPosition() > -1) {
                                 System.out.println("ZDEJ SMO NA: " + cursorAllTaxis.getString(1));
                             }
                         }
@@ -223,17 +264,17 @@ public class MainActivity extends AppCompatActivity {
                     if (color == Color.GREEN) {
 
                         cursorAllTaxis.moveToFirst();
-                        while(cursorAllTaxis.getPosition() != i){
+                        while (cursorAllTaxis.getPosition() != i) {
                             cursorAllTaxis.moveToNext();
-                            if(cursorAllTaxis.getPosition() > -1){
+                            if (cursorAllTaxis.getPosition() > -1) {
                                 System.out.println("ZDEJ SMO NA: " + cursorAllTaxis.getString(1));
                             }
                         }
 
                         System.out.println("CALLING: "
                                 + cursorAllTaxis.getString(
-                                    cursorAllTaxis.getColumnIndex(
-                                            DatabaseContract.Taxis.COLUMN_NAME_NAME)));
+                                cursorAllTaxis.getColumnIndex(
+                                        DatabaseContract.Taxis.COLUMN_NAME_NAME)));
 
                         Intent callIntent = new Intent(Intent.ACTION_CALL);
                         callIntent.setData(Uri.parse("tel:"
@@ -258,7 +299,6 @@ public class MainActivity extends AppCompatActivity {
 
                             return;
                         }
-
 
 
                         startActivity(callIntent);
@@ -291,11 +331,103 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return;
             }
+            case MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+                    Log.d("PERMISSION_COARSE", "granted");
+
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    Log.d("PERMISSION_COARSE", "denied");
+                }
+                return;
+            }
+            case MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+                    Log.d("PERMISSION_FINE", "granted");
+
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    Log.d("PERMISSION_FINE", "denied");
+                }
+                return;
+            }
+
 
             // other 'case' lines to check for other
             // permissions this app might request
         }
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mGoogleApiClient.isConnected()) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        mGoogleApiClient.disconnect();
+        super.onStop();
+    }
+
+    @Override
+    public void onConnected(Bundle connectionHint) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.this,
+                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                    MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION);
+            ActivityCompat.requestPermissions(MainActivity.this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+            return;
+        }
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        mCurrentLocation = location;
+        TextView tvLoading = (TextView) findViewById(R.id.tvLoading);
+        tvLoading.setText("LAT: " + mCurrentLocation.getLatitude()
+                + ", LON: " + mCurrentLocation.getLongitude());
+        System.out.println("LAT: " + mCurrentLocation.getLatitude()
+                + " | LON: " + mCurrentLocation.getLongitude());
+
+        // calculate distance from current position to default destination
+        calculateDistance();
+    }
+
+    @Override
+    public void onConnectionSuspended(int cause) {
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult result) {
+    }
+
 
     private class getAllTaxiLinksFromPageTask extends AsyncTask<URL, Integer, ArrayList> {
 
@@ -562,4 +694,6 @@ public class MainActivity extends AppCompatActivity {
         textView.setVisibility(View.INVISIBLE);
 
     }
+
+
 }
