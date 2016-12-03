@@ -12,8 +12,6 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -33,9 +31,13 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -59,6 +61,8 @@ public class MainActivity extends AppCompatActivity implements
     private Location mCurrentLocation;
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION = 1;
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 2;
+    private Place mDestination = null;
+    private TaxiAdapter globalTaxiAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +71,9 @@ public class MainActivity extends AppCompatActivity implements
 
         // set view params
         setViewParams();
+
+        // create place search fragment
+        createPlaceSearchFragment();
 
         // start fetching GPS location periodically
         startFetchingLocation();
@@ -88,6 +95,28 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
+    private void createPlaceSearchFragment() {
+        PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
+                getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
+
+        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+                // TODO: Get info about the selected place.
+                System.out.println("PLACE_FRAGMENT: " + "Place: " + place.getName());
+
+                mDestination = place;
+            }
+
+            @Override
+            public void onError(Status status) {
+                // TODO: Handle the error.
+                System.out.println("PLACE_FRAGMENT: " + "An error occurred: " + status);
+            }
+        });
+
+    }
+
     private void startFetchingLocation() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -98,12 +127,12 @@ public class MainActivity extends AppCompatActivity implements
         // High accuracy
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         // Update interval in milliseconds
-        mLocationRequest.setInterval(10000);
+        mLocationRequest.setInterval(2000);
     /* Explicitly set the fastest interval for location updates, in milliseconds.
        This controls the fastest rate at which your application will receive location
        updates, which might be faster than setInterval(long) in some situations (for
        example, if other applications are triggering location updates).*/
-        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setFastestInterval(1000);
     }
 
     private void calculateDistance() {
@@ -156,10 +185,23 @@ public class MainActivity extends AppCompatActivity implements
 
         String latitude = Double.toString(mCurrentLocation.getLatitude());
         String longitude = Double.toString(mCurrentLocation.getLongitude());
+        String destinationCoords;
+        if(mDestination == null){
+            destinationCoords = "0.0,0.0";
+        }
+        else{
+            destinationCoords =
+                    Double.toString(mDestination.getLatLng().latitude)
+                    + ","
+                    + Double.toString(mDestination.getLatLng().longitude);
+        }
+
 
         return "https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins="
                 +  latitude + "," + longitude
-                + "&destinations=Črnuče,Slovenia&key=AIzaSyDuQNq2zmwmo3Y5a1-R9w5xQUH1I-iv_qY";
+                + "&destinations="
+                + destinationCoords
+                + "&key=AIzaSyDT9r63K2oLhEESeSPj7zaFVUKhcReeyEQ";
     }
 
 
@@ -193,9 +235,9 @@ public class MainActivity extends AppCompatActivity implements
 
         // Find ListView to populate
         final ListView lvTaxis = (ListView) findViewById(R.id.lvTaxis);
-        // Setup cursor adapter using cursor from last step
+        // Setup cursor globalTaxiAdapter using cursor from last step
         TaxisCursorAdapter taxisCursorAdapter = new TaxisCursorAdapter(this, cursorAllTaxis);
-        // Attach cursor adapter to the ListView
+        // Attach cursor globalTaxiAdapter to the ListView
         lvTaxis.setAdapter(taxisCursorAdapter);
         lvTaxis.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -382,7 +424,7 @@ public class MainActivity extends AppCompatActivity implements
     protected void onPause() {
         super.onPause();
         if (mGoogleApiClient.isConnected()) {
-            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+            //LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
         }
     }
 
@@ -414,6 +456,13 @@ public class MainActivity extends AppCompatActivity implements
                 + ", LON: " + mCurrentLocation.getLongitude());
         System.out.println("LAT: " + mCurrentLocation.getLatitude()
                 + " | LON: " + mCurrentLocation.getLongitude());
+
+        // if globalTaxiAdapter has been created, notify it that a new destination is ready for
+        // the price to be estimated
+        if(globalTaxiAdapter != null){
+            globalTaxiAdapter.notifyDataSetChanged();
+        }
+
 
         // calculate distance from current position to default destination
         calculateDistance();
@@ -596,12 +645,12 @@ public class MainActivity extends AppCompatActivity implements
                     databaseHelper.insertNewTaxi((Taxi) taxis.get(i), db);
                 }
 
-                // Create the adapter to convert the ArrayList to views
-                final TaxiAdapter adapter = new TaxiAdapter(MainActivity.this, taxis);
+                // Create the globalTaxiAdapter to convert the ArrayList to views
+                globalTaxiAdapter = new TaxiAdapter(MainActivity.this, taxis);
 
-                // Attach the adapter to a ListView to update ListView taxi data
+                // Attach the globalTaxiAdapter to a ListView to update ListView taxi data
                 final ListView listView = (ListView) findViewById(R.id.lvTaxis);
-                listView.setAdapter(adapter);
+                listView.setAdapter(globalTaxiAdapter);
                 listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -618,15 +667,15 @@ public class MainActivity extends AppCompatActivity implements
                                 color = ((ColorDrawable) background).getColor();
                             if (color == Color.GREEN) {
 
-                                tvName.setText(adapter.getTaxis().get(i).getName());
-                                tvPhone.setText(adapter.getTaxis().get(i).getPhone());
-                                tvStartFee.setText(adapter.getTaxis().get(i).getStartFee());
-                                tvWaitingHour.setText(adapter.getTaxis().get(i).getWaitingHour());
-                                tvRandomKm.setText(adapter.getTaxis().get(i).getRandomKm());
+                                tvName.setText(globalTaxiAdapter.getTaxis().get(i).getName());
+                                tvPhone.setText(globalTaxiAdapter.getTaxis().get(i).getPhone());
+                                tvStartFee.setText(globalTaxiAdapter.getTaxis().get(i).getStartFee());
+                                tvWaitingHour.setText(globalTaxiAdapter.getTaxis().get(i).getWaitingHour());
+                                tvRandomKm.setText(globalTaxiAdapter.getTaxis().get(i).getRandomKm());
 
                                 llDetails.setVisibility(View.VISIBLE);
 
-                                System.out.println("SHOWING DETAILS FOR: " + adapter.getTaxis()
+                                System.out.println("SHOWING DETAILS FOR: " + globalTaxiAdapter.getTaxis()
                                         .get(i).getName());
                             }
                         }
@@ -647,11 +696,11 @@ public class MainActivity extends AppCompatActivity implements
                             if (background instanceof ColorDrawable)
                                 color = ((ColorDrawable) background).getColor();
                             if (color == Color.GREEN) {
-                                System.out.println("CALLING: " + adapter.getTaxis().get(i)
+                                System.out.println("CALLING: " + globalTaxiAdapter.getTaxis().get(i)
                                         .getName());
 
                                 Intent callIntent = new Intent(Intent.ACTION_CALL);
-                                callIntent.setData(Uri.parse("tel:" + adapter.getTaxis().get(i)
+                                callIntent.setData(Uri.parse("tel:" + globalTaxiAdapter.getTaxis().get(i)
                                         .getPhone()));
                                 if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest
                                         .permission
