@@ -201,7 +201,7 @@ public class MainActivity extends AppCompatActivity implements
                 +  latitude + "," + longitude
                 + "&destinations="
                 + destinationCoords
-                + "&key=AIzaSyDT9r63K2oLhEESeSPj7zaFVUKhcReeyEQ";
+                + "&key=AIzaSyBdbuZVZ_owjA87F9q0MAxce5VUgYS27M0";
     }
 
 
@@ -498,16 +498,18 @@ public class MainActivity extends AppCompatActivity implements
 
                 try {
                     Taxi taxi;
-                    while ((inputLine = in.readLine()) != null) {
+                    if (in != null) {
+                        while ((inputLine = in.readLine()) != null) {
 
-                        if (inputLine.contains("portfolio-view")) {
-                            String taxiURL = inputLine.substring(inputLine.indexOf("http"),
-                                    inputLine.indexOf("\">"));
+                            if (inputLine.contains("portfolio-view")) {
+                                String taxiURL = inputLine.substring(inputLine.indexOf("http"),
+                                        inputLine.indexOf("\">"));
 
-                            taxi = getTaxiFromLink(taxiURL);
+                                taxi = getTaxiFromLink(taxiURL);
 
-                            if (taxi.getCity().equals("Ljubljana")) {
-                                taxis.add(taxi);
+                                if (taxi.getCity().equals("Ljubljana")) {
+                                    taxis.add(taxi);
+                                }
                             }
                         }
                     }
@@ -515,13 +517,19 @@ public class MainActivity extends AppCompatActivity implements
                     e.printStackTrace();
                 }
                 try {
-                    in.close();
+                    if (in != null) {
+                        in.close();
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
 
                 // Escape early if cancel() is called
                 if (isCancelled()) break;
+            }
+
+            if(taxis.size() == 0){
+                taxis = manuallyCreateTaxis();
             }
 
             // sort taxis by price
@@ -536,6 +544,14 @@ public class MainActivity extends AppCompatActivity implements
 
             });
 
+            return taxis;
+        }
+
+        private ArrayList<Taxi> manuallyCreateTaxis() {
+            ArrayList<Taxi> taxis = new ArrayList<>();
+            taxis.add(new Taxi("Ljubljana", "Metro", "080 11 90", "0,95", "0,89", "0,89", "0,89", "13,90", "8,9", "8,9"));
+            taxis.add(new Taxi("Ljubljana", "Cammeo", "01 777 12 12", "0,85", "0,85", "0,85", "0,85", "20,00", "8,5", "8,5"));
+            taxis.add(new Taxi("Ljubljana", "Intertours", "080 311 311", "1,00", "0,77", "0,77", "0,77", "14,80", "0,77", "7,7"));
             return taxis;
         }
 
