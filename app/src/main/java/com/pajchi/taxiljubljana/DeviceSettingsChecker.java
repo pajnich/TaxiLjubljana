@@ -7,7 +7,7 @@ import android.content.Intent;
 import android.location.LocationManager;
 
 class DeviceSettingsChecker {
-    public static void turnOnLocation(MainActivity mainActivity) {
+    public static void turnOnGpsTracking(MainActivity mainActivity) {
         statusCheck(mainActivity);
     }
 

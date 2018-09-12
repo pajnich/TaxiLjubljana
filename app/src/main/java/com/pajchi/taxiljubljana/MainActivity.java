@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements
         // create place search fragment
         createPlaceSearchFragment();
 
-        DeviceSettingsChecker.turnOnLocation(this);
+        DeviceSettingsChecker.turnOnGpsTracking(this);
 
         // start fetching GPS location periodically
         startFetchingLocation();
