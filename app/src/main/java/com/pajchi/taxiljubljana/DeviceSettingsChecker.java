@@ -7,11 +7,11 @@ import android.content.Intent;
 import android.location.LocationManager;
 
 class DeviceSettingsChecker {
-    public void turnOnLocation(MainActivity mainActivity) {
+    public static void turnOnLocation(MainActivity mainActivity) {
         statusCheck(mainActivity);
     }
 
-    private void statusCheck(MainActivity mainActivity) {
+    private static void statusCheck(MainActivity mainActivity) {
         final LocationManager manager = (LocationManager) mainActivity.getSystemService(Context.LOCATION_SERVICE);
 
         if (manager != null && !manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -19,7 +19,7 @@ class DeviceSettingsChecker {
         }
     }
 
-    private void buildAlertMessageNoGps(final MainActivity mainActivity) {
+    private static void buildAlertMessageNoGps(final MainActivity mainActivity) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(mainActivity);
         builder.setMessage("Your GPS seems to be disabled, do you want to enable it?")
                 .setCancelable(false)
