@@ -756,7 +756,8 @@ public class MainActivity extends AppCompatActivity implements
     public static double priceStringToDouble(String random10Km) {
         random10Km = random10Km.replace(" €", "");
         random10Km = random10Km.replace(",", ".");
-        return Double.parseDouble(random10Km);
+        double price = Double.parseDouble(random10Km);
+        return price;
     }
 
     private void hideLoadingAnimation() {
