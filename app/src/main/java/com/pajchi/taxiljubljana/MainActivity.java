@@ -35,6 +35,7 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
@@ -91,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements
             e.printStackTrace();
         }
 
-        if(mCurrentLocation == null){
+        if (mCurrentLocation == null) {
             System.out.println("mCurrentLocation is null");
         }
 
@@ -116,6 +117,11 @@ public class MainActivity extends AppCompatActivity implements
                 System.out.println("PLACE_FRAGMENT: " + "An error occurred: " + status);
             }
         });
+
+        AutocompleteFilter typeFilter = new AutocompleteFilter.Builder()
+                .setCountry("SI")
+                .build();
+        autocompleteFragment.setFilter(typeFilter);
 
     }
 
@@ -188,22 +194,22 @@ public class MainActivity extends AppCompatActivity implements
         String latitude = Double.toString(mCurrentLocation.getLatitude());
         String longitude = Double.toString(mCurrentLocation.getLongitude());
         String destinationCoords;
-        if(mDestination == null){
+        if (mDestination == null) {
             destinationCoords = "0.0,0.0";
-        }
-        else{
+        } else {
             destinationCoords =
                     Double.toString(mDestination.getLatLng().latitude)
-                    + ","
-                    + Double.toString(mDestination.getLatLng().longitude);
+                            + ","
+                            + Double.toString(mDestination.getLatLng().longitude);
         }
 
 
         return "https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins="
-                +  latitude + "," + longitude
+                + latitude + "," + longitude
                 + "&destinations="
                 + destinationCoords
-                + "&key=AIzaSyBdbuZVZ_owjA87F9q0MAxce5VUgYS27M0";
+                + "&key="
+                + getResources().getString(R.string.google_maps_api_key);
     }
 
 
@@ -461,7 +467,7 @@ public class MainActivity extends AppCompatActivity implements
 
         // if globalTaxiAdapter has been created, notify it that a new destination is ready for
         // the price to be estimated
-        if(globalTaxiAdapter != null){
+        if (globalTaxiAdapter != null) {
             globalTaxiAdapter.notifyDataSetChanged();
         }
 
@@ -530,13 +536,14 @@ public class MainActivity extends AppCompatActivity implements
                 if (isCancelled()) break;
             }
 
-            if(taxis.size() == 0){
+            if (taxis.size() == 0) {
                 taxis = manuallyCreateTaxis();
             }
 
             // sort taxis by price
             Collections.sort(taxis, new Comparator<Taxi>() {
-                @Override public int compare(Taxi t1, Taxi t2) {
+                @Override
+                public int compare(Taxi t1, Taxi t2) {
                     return Double.compare(
                             priceStringToDouble(t1.getRandom10Km()),
                             priceStringToDouble(t2.getRandom10Km()));
@@ -636,7 +643,7 @@ public class MainActivity extends AppCompatActivity implements
          * Receives {@link ArrayList} of {@link Taxi} objects and creates a list in main activity
          * from it.
          *
-         * @param taxis    {@link ArrayList} of {@link Taxi} objects received from the AsyncTask.
+         * @param taxis {@link ArrayList} of {@link Taxi} objects received from the AsyncTask.
          */
         protected void onPostExecute(ArrayList taxis) {
 
@@ -658,7 +665,7 @@ public class MainActivity extends AppCompatActivity implements
                 databaseHelper.deleteAllRows(DatabaseContract.Taxis.TABLE_NAME, db);
 
                 // insert new taxi data
-                for(int i = 0; i < taxis.size(); i++){
+                for (int i = 0; i < taxis.size(); i++) {
 
                     databaseHelper.insertNewTaxi((Taxi) taxis.get(i), db);
                 }
@@ -747,8 +754,8 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     public static double priceStringToDouble(String random10Km) {
-        random10Km = random10Km.replace(" €","");
-        random10Km = random10Km.replace(",",".");
+        random10Km = random10Km.replace(" €", "");
+        random10Km = random10Km.replace(",", ".");
         return Double.parseDouble(random10Km);
     }
 
