@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">Taxi Ljubljana</string>
     <string name="google_maps_api_key">AIzaSyBozT4bwqbbLwkgaBWUJzdFbUXYG9sPKEg</string>
+    <string name="domov">Domov</string>
+    <string name="nov_cilj">Nov cilj</string>
+    <string name="direkten_klic">Direkten klic</string>
+    <string name="nastavitve">Nastavitve</string>
 </resources>
