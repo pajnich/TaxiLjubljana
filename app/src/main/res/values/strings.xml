@@ -5,4 +5,6 @@
     <string name="nov_cilj">Nov cilj</string>
     <string name="direkten_klic">Direkten klic</string>
     <string name="nastavitve">Nastavitve</string>
+    <string name="homeAddress">homeAddress</string>
+    <string name="favouriteTaxiCompany" />
 </resources>

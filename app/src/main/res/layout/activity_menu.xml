@@ -10,38 +10,38 @@
 
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/goHomeButton"
         style="@style/MenuButton"
         android:layout_width="123dp"
         android:layout_height="wrap_content"
         android:text="@string/domov"
-        app:layout_constraintBottom_toTopOf="@+id/button3"
+        app:layout_constraintBottom_toTopOf="@+id/newDestinationButton"
         app:layout_constraintEnd_toStartOf="@+id/guideline2"
         app:layout_constraintStart_toStartOf="@+id/guideline"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed" />
 
     <Button
-        android:id="@+id/button3"
+        android:id="@+id/newDestinationButton"
         style="@style/MenuButton"
         android:layout_width="123dp"
         android:layout_height="wrap_content"
         android:text="@string/nov_cilj"
-        app:layout_constraintBottom_toTopOf="@+id/button4"
+        app:layout_constraintBottom_toTopOf="@+id/directCallButton"
         app:layout_constraintEnd_toStartOf="@+id/guideline2"
         app:layout_constraintStart_toStartOf="@+id/guideline"
-        app:layout_constraintTop_toBottomOf="@+id/button2" />
+        app:layout_constraintTop_toBottomOf="@+id/goHomeButton" />
 
     <Button
-        android:id="@+id/button4"
+        android:id="@+id/directCallButton"
         style="@style/MenuButton"
         android:layout_width="123dp"
         android:layout_height="wrap_content"
         android:text="@string/direkten_klic"
-        app:layout_constraintBottom_toTopOf="@+id/button6"
+        app:layout_constraintBottom_toTopOf="@+id/settingsButton"
         app:layout_constraintEnd_toStartOf="@+id/guideline2"
         app:layout_constraintStart_toStartOf="@+id/guideline"
-        app:layout_constraintTop_toBottomOf="@+id/button3" />
+        app:layout_constraintTop_toBottomOf="@+id/newDestinationButton" />
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline"
@@ -58,7 +58,7 @@
         app:layout_constraintGuide_percent="0.66" />
 
     <Button
-        android:id="@+id/button6"
+        android:id="@+id/settingsButton"
         style="@style/MenuButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -66,5 +66,5 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guideline2"
         app:layout_constraintStart_toStartOf="@+id/guideline"
-        app:layout_constraintTop_toBottomOf="@+id/button4" />
+        app:layout_constraintTop_toBottomOf="@+id/directCallButton" />
 </android.support.constraint.ConstraintLayout>
