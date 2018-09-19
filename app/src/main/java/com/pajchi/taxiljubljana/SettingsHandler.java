@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.google.android.gms.location.places.Place;
+
 class SettingsHandler {
 
     private final SharedPreferences sharedPref;
@@ -22,5 +24,11 @@ class SettingsHandler {
     public boolean favouriteTaxiCompanyExists() {
         String savedHomeAddress = sharedPref.getString(activity.getString(R.string.favouriteTaxiCompany), "");
         return !savedHomeAddress.equals("");
+    }
+
+    public void saveHome(Place place) {
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString(place.toString(), "");
+        editor.apply();
     }
 }
