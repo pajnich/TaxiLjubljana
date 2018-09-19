@@ -7,4 +7,6 @@
     <string name="nastavitve">Nastavitve</string>
     <string name="homeAddress">homeAddress</string>
     <string name="favouriteTaxiCompany" />
+    <string name="you_have_no_saved_home_address">Nimate še shranjenega domačega naslova</string>
+    <string name="save">Shrani</string>
 </resources>
