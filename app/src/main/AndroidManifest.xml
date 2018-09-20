@@ -26,7 +26,8 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_api_key" />
 
-        <activity android:name=".EnterHomeAddressActivity"></activity>
+        <activity android:name=".EnterHomeAddressActivity" />
+        <activity android:name=".ChooseTaxiCompanyActivity"></activity>
     </application>
 
 </manifest>
