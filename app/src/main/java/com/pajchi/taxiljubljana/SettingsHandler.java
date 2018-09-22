@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.google.android.gms.location.places.Place;
+import com.google.gson.Gson;
 
 class SettingsHandler {
 
@@ -17,7 +18,7 @@ class SettingsHandler {
     }
 
     public boolean savedHomeAddressExists() {
-        String savedHomeAddress = sharedPref.getString(activity.getString(R.string.homeAddress), "");
+        String savedHomeAddress = sharedPref.getString(activity.getString(R.string.home), "");
         return !savedHomeAddress.equals("");
     }
 
@@ -36,5 +37,13 @@ class SettingsHandler {
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(taxiCompanyPhoneNumber, "");
         editor.apply();
+    }
+
+    public Place getHome() {
+        return new Gson().fromJson(sharedPref.getString(activity.getString(R.string.home), ""), Place.class);
+    }
+
+    public Place getLastEnteredDestination() {
+        return new Gson().fromJson(sharedPref.getString(activity.getString(R.string.lastEnteredDestination), ""), Place.class);
     }
 }

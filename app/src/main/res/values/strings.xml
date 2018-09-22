@@ -5,10 +5,11 @@
     <string name="nov_cilj">Nov cilj</string>
     <string name="direkten_klic">Direkten klic</string>
     <string name="nastavitve">Nastavitve</string>
-    <string name="homeAddress">homeAddress</string>
+    <string name="home">homeAddress</string>
     <string name="favouriteTaxiCompany" />
     <string name="you_have_no_saved_home_address">Nimate še shranjenega domačega naslova</string>
     <string name="save">Shrani</string>
     <string name="api_places">API_PLACES</string>
     <string name="choose_taxi_company">Izberite taxi službo</string>
+    <string name="lastEnteredDestination">lastEnteredDestination</string>
 </resources>
