@@ -31,4 +31,10 @@ class SettingsHandler {
         editor.putString(place.toString(), "");
         editor.apply();
     }
+
+    public void saveFavouriteTaxiCompanyPhoneNumber(String taxiCompanyPhoneNumber) {
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString(taxiCompanyPhoneNumber, "");
+        editor.apply();
+    }
 }
