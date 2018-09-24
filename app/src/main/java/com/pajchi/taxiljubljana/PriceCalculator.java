@@ -46,7 +46,7 @@ class PriceCalculator {
         String estimatedPrice = String.valueOf(
                 Math.round(
                         MainActivity.priceStringToDouble(regularKm)
-                                * (MainActivity.priceStringToDouble(MainActivity.distance)
+                                * (distance
 
 
                                 / 1000)

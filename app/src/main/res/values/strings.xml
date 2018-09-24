@@ -12,4 +12,5 @@
     <string name="api_places">API_PLACES</string>
     <string name="choose_taxi_company">Izberite taxi službo</string>
     <string name="lastEnteredDestination">lastEnteredDestination</string>
+    <string name="enter_destination">Vnesi cilj</string>
 </resources>

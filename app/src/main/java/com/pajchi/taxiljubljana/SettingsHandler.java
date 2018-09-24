@@ -46,4 +46,10 @@ class SettingsHandler {
     public Place getLastEnteredDestination() {
         return new Gson().fromJson(sharedPref.getString(activity.getString(R.string.lastEnteredDestination), ""), Place.class);
     }
+
+    public void saveLastEnteredDestination(Place destination) {
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString(destination.toString(), "");
+        editor.apply();
+    }
 }
