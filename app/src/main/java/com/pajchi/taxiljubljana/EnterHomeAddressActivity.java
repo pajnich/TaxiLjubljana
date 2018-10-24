@@ -45,7 +45,7 @@ public class EnterHomeAddressActivity extends AppCompatActivity {
         public void onClick(View view) {
             settingsHandler.saveHome(home);
             if (settingsHandler.favouriteTaxiCompanyExists()) {
-                ActivityNavigator.goToPerformCallActivity(thisActivityContextByName);
+                Caller.callFavouriteTaxiCompany(thisActivityContextByName);
             } else {
                 ActivityNavigator.goToChooseTaxiCompanyActivity(thisActivityContextByName);
             }

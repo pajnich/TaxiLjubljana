@@ -5,11 +5,6 @@ import android.content.Intent;
 
 class ActivityNavigator {
 
-    public static void goToPerformCallActivity(Context context) {
-        Intent intent = new Intent(context, PerformCallActivity.class);
-        context.startActivity(intent);
-    }
-
     public static void goToChooseTaxiCompanyActivity(Context context) {
         Intent intent = new Intent(context, ChooseTaxiCompanyActivity.class);
         context.startActivity(intent);

@@ -27,20 +27,24 @@ class SettingsHandler {
         return !savedHomeAddress.equals("");
     }
 
+    public Place getHome() {
+        return new Gson().fromJson(sharedPref.getString(activity.getString(R.string.home), ""), Place.class);
+    }
+
     public void saveHome(Place place) {
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(place.toString(), "");
+        editor.putString(activity.getString(R.string.home), place.toString());
         editor.apply();
+    }
+
+    public String getFavouriteTaxiCompanyPhoneNumber() {
+        return sharedPref.getString(activity.getString(R.string.favouriteTaxiCompany), "");
     }
 
     public void saveFavouriteTaxiCompanyPhoneNumber(String taxiCompanyPhoneNumber) {
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(taxiCompanyPhoneNumber, "");
+        editor.putString(activity.getString(R.string.favouriteTaxiCompany), taxiCompanyPhoneNumber);
         editor.apply();
-    }
-
-    public Place getHome() {
-        return new Gson().fromJson(sharedPref.getString(activity.getString(R.string.home), ""), Place.class);
     }
 
     public Place getLastEnteredDestination() {
@@ -49,7 +53,7 @@ class SettingsHandler {
 
     public void saveLastEnteredDestination(Place destination) {
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(destination.toString(), "");
+        editor.putString(activity.getString(R.string.lastEnteredDestination), destination.toString());
         editor.apply();
     }
 }

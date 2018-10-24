@@ -44,7 +44,7 @@ public class MenuActivity extends AppCompatActivity {
         public void onClick(View view) {
             if (settingsHandler.savedHomeAddressExists()) {
                 if (settingsHandler.favouriteTaxiCompanyExists()) {
-                    ActivityNavigator.goToPerformCallActivity(thisActivityContextByName);
+                    Caller.callFavouriteTaxiCompany(thisActivityContextByName);
                 } else {
                     ActivityNavigator.goToChooseTaxiCompanyActivity(thisActivityContextByName);
                 }
@@ -64,7 +64,7 @@ public class MenuActivity extends AppCompatActivity {
     private class DirectCallOnClickListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {
-            ActivityNavigator.goToPerformCallActivity(thisActivityContextByName);
+            Caller.callFavouriteTaxiCompany(thisActivityContextByName);
         }
     }
 

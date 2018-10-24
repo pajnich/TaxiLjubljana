@@ -89,49 +89,49 @@ public class ChooseTaxiCompanyActivity extends AppCompatActivity implements Loca
             @Override
             public void onClick(View v) {
                 settingsHandler.saveFavouriteTaxiCompanyPhoneNumber("1 777 1212");
-                ActivityNavigator.goToPerformCallActivity(ChooseTaxiCompanyActivity.this);
+                Caller.callFavouriteTaxiCompany(ChooseTaxiCompanyActivity.this);
             }
         });
         cardIntereks.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 settingsHandler.saveFavouriteTaxiCompanyPhoneNumber("1 546 4066");
-                ActivityNavigator.goToPerformCallActivity(ChooseTaxiCompanyActivity.this);
+                Caller.callFavouriteTaxiCompany(ChooseTaxiCompanyActivity.this);
             }
         });
         cardIntertours.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 settingsHandler.saveFavouriteTaxiCompanyPhoneNumber("080 311 311");
-                ActivityNavigator.goToPerformCallActivity(ChooseTaxiCompanyActivity.this);
+                Caller.callFavouriteTaxiCompany(ChooseTaxiCompanyActivity.this);
             }
         });
         cardLaguna.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 settingsHandler.saveFavouriteTaxiCompanyPhoneNumber("080 12 33");
-                ActivityNavigator.goToPerformCallActivity(ChooseTaxiCompanyActivity.this);
+                Caller.callFavouriteTaxiCompany(ChooseTaxiCompanyActivity.this);
             }
         });
         cardLjubljana.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 settingsHandler.saveFavouriteTaxiCompanyPhoneNumber("1 234 9000");
-                ActivityNavigator.goToPerformCallActivity(ChooseTaxiCompanyActivity.this);
+                Caller.callFavouriteTaxiCompany(ChooseTaxiCompanyActivity.this);
             }
         });
         cardMetro.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 settingsHandler.saveFavouriteTaxiCompanyPhoneNumber("080 11 90");
-                ActivityNavigator.goToPerformCallActivity(ChooseTaxiCompanyActivity.this);
+                Caller.callFavouriteTaxiCompany(ChooseTaxiCompanyActivity.this);
             }
         });
         cardRondo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 settingsHandler.saveFavouriteTaxiCompanyPhoneNumber("080 900 900");
-                ActivityNavigator.goToPerformCallActivity(ChooseTaxiCompanyActivity.this);
+                Caller.callFavouriteTaxiCompany(ChooseTaxiCompanyActivity.this);
             }
         });
     }

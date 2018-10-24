@@ -45,7 +45,7 @@ public class NewDestinationActivity extends AppCompatActivity {
         public void onClick(View view) {
             settingsHandler.saveLastEnteredDestination(destination);
             if (settingsHandler.favouriteTaxiCompanyExists()) {
-                ActivityNavigator.goToPerformCallActivity(thisActivityContextByName);
+                Caller.callFavouriteTaxiCompany(thisActivityContextByName);
             } else {
                 ActivityNavigator.goToChooseTaxiCompanyActivity(thisActivityContextByName);
             }
